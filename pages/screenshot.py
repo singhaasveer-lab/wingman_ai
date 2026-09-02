@@ -5,7 +5,13 @@ from core.db import save_history, save_item
 from core.ocr import extract_text
 from core.ui import inject_css
 
+
 inject_css()
+
+
+# ============================================================
+# PAGE STYLES
+# ============================================================
 
 st.markdown(
     """
@@ -17,6 +23,7 @@ st.markdown(
     border:1px solid #52152a;
     color:white;
 }
+
 .forensic-head h1{
     color:white;
     font-size:clamp(2.4rem,4vw,4.3rem);
@@ -24,14 +31,17 @@ st.markdown(
     letter-spacing:-2.8px;
     margin:8px 0;
 }
+
 .forensic-head span{
     color:#ef4668;
 }
+
 .forensic-head p{
     color:#d9b3be;
     max-width:780px;
     line-height:1.65;
 }
+
 .evidence{
     padding:18px;
     border-radius:18px;
@@ -39,29 +49,34 @@ st.markdown(
     border:1px solid #541827;
     color:#f8e9ed;
 }
+
 .evidence-label{
     color:#ed6280;
     font-size:.58rem;
     font-weight:950;
     letter-spacing:.9px;
 }
+
 .evidence-value{
     color:#fff;
     font-size:1.25rem;
     font-weight:900;
     margin-top:5px;
 }
+
 .analysis-band{
     padding:21px;
     border-radius:18px;
     background:#fff;
     border:1px solid #e5dadd;
 }
+
 .signal-number{
     color:#b52245;
     font-size:1.2rem;
     font-weight:950;
 }
+
 .signal-caption{
     color:#8b777e;
     font-size:.67rem;
@@ -70,6 +85,11 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+
+
+# ============================================================
+# HEADER
+# ============================================================
 
 st.markdown(
     """
@@ -97,11 +117,17 @@ to know what another person is thinking.
 
 st.write("")
 
+
+# ============================================================
+# UPLOAD
+# ============================================================
+
 uploaded = st.file_uploader(
     "Upload screenshot",
     type=["png", "jpg", "jpeg", "webp"],
     label_visibility="collapsed",
 )
+
 
 if not uploaded:
 
@@ -130,6 +156,10 @@ Wingman will run OCR before analysis.
     st.stop()
 
 
+# ============================================================
+# SOURCE IMAGE
+# ============================================================
+
 with st.container(border=True):
 
     st.markdown(
@@ -139,33 +169,115 @@ with st.container(border=True):
 
     st.image(
         uploaded,
-        use_container_width=True,
+        width="stretch",
     )
 
 
+# ============================================================
+# INTELLIGENCE SCAN
+# ============================================================
+
 if st.button(
     "RUN FULL INTELLIGENCE SCAN →",
-    use_container_width=True,
+    width="stretch",
     type="primary",
 ):
 
+    # --------------------------------------------------------
+    # OCR
+    # --------------------------------------------------------
+
     with st.spinner("Extracting visible conversation..."):
-        text, message = extract_text(
-            uploaded
+
+        try:
+            ocr_result = extract_text(uploaded)
+
+        except Exception as exc:
+            st.error(f"OCR failed: {exc}")
+            st.stop()
+
+
+    # --------------------------------------------------------
+    # NORMALIZE OCR RESULT
+    # --------------------------------------------------------
+
+    if isinstance(ocr_result, tuple):
+
+        text = (
+            ocr_result[0]
+            if len(ocr_result) > 0
+            else ""
         )
 
+        message = (
+            ocr_result[1]
+            if len(ocr_result) > 1
+            else None
+        )
+
+    else:
+
+        text = str(
+            ocr_result or ""
+        )
+
+        message = None
+
+
+    # --------------------------------------------------------
+    # VALIDATE OCR
+    # --------------------------------------------------------
+
+    text = text.strip()
+
     if not text:
-        st.error(message)
+
+        st.error(
+            message
+            or "No readable conversation text was detected."
+        )
+
         st.stop()
 
-    with st.expander("OCR result"):
+
+    # --------------------------------------------------------
+    # SHOW OCR RESULT
+    # --------------------------------------------------------
+
+    with st.expander("OCR result", expanded=False):
+
         st.text(text)
 
-    with st.spinner("Analyzing conversational signals..."):
-        result = analyze(text)
+
+    # --------------------------------------------------------
+    # ANALYSIS
+    # --------------------------------------------------------
+
+    with st.spinner(
+        "Analyzing conversational signals..."
+    ):
+
+        try:
+            result = analyze(text)
+
+        except Exception as exc:
+            st.error(
+                f"Conversation analysis failed: {exc}"
+            )
+            st.stop()
+
+
+    # --------------------------------------------------------
+    # SAVE SESSION STATE
+    # --------------------------------------------------------
 
     st.session_state.last_conversation = text
     st.session_state.last_analysis = result
+
+
+    # --------------------------------------------------------
+    # SAVE HISTORY
+    # --------------------------------------------------------
 
     save_history(
         "Screenshot",
@@ -174,16 +286,23 @@ if st.button(
         result["confidence"],
     )
 
-    st.rerun()
 
+# ============================================================
+# LOAD LATEST RESULT
+# ============================================================
 
 result = st.session_state.get(
     "last_analysis"
 )
 
+
 if not result:
     st.stop()
 
+
+# ============================================================
+# SIGNAL OVERVIEW
+# ============================================================
 
 st.markdown(
     '<div class="section-head">Signal overview</div>',
@@ -192,25 +311,56 @@ st.markdown(
 
 a, b, c, d = st.columns(4)
 
+
 overview = [
-    (a, result["confidence"], "CONFIDENCE"),
-    (b, result["decision"], "DECISION"),
-    (c, result["vibe"], "VIBE"),
-    (d, result["archetype"], "ARCHETYPE"),
+    (
+        a,
+        result["confidence"],
+        "CONFIDENCE",
+    ),
+    (
+        b,
+        result["decision"],
+        "DECISION",
+    ),
+    (
+        c,
+        result["vibe"],
+        "VIBE",
+    ),
+    (
+        d,
+        result["archetype"],
+        "ARCHETYPE",
+    ),
 ]
 
+
 for col, value, label in overview:
+
     with col:
+
         st.markdown(
             f"""
 <div class="evidence">
-<div class="evidence-label">{label}</div>
-<div class="evidence-value">{value}</div>
+
+<div class="evidence-label">
+{label}
+</div>
+
+<div class="evidence-value">
+{value}
+</div>
+
 </div>
 """,
             unsafe_allow_html=True,
         )
 
+
+# ============================================================
+# EXECUTIVE INTERPRETATION
+# ============================================================
 
 st.markdown(
     '<div class="section-head">Executive interpretation</div>',
@@ -222,10 +372,15 @@ st.info(
 )
 
 
+# ============================================================
+# CONVERSATION DNA
+# ============================================================
+
 st.markdown(
     '<div class="section-head">Conversation DNA</div>',
     unsafe_allow_html=True,
 )
+
 
 for signal in result["signals"]:
 
@@ -258,6 +413,7 @@ for signal in result["signals"]:
 <div class="signal-number">
 {value}%
 </div>
+
 <div class="signal-caption">
 signal
 </div>
@@ -265,6 +421,10 @@ signal
             unsafe_allow_html=True,
         )
 
+
+# ============================================================
+# DECISION BRIEF
+# ============================================================
 
 st.markdown(
     '<div class="section-head">Decision brief</div>',
@@ -293,10 +453,15 @@ NEXT BEST MOVE
 )
 
 
+# ============================================================
+# RAG EVIDENCE
+# ============================================================
+
 st.markdown(
     '<div class="section-head">RAG evidence</div>',
     unsafe_allow_html=True,
 )
+
 
 for item in result["rag_results"]:
 
@@ -315,23 +480,44 @@ for item in result["rag_results"]:
         )
 
         st.caption(
-            f'Retrieval relevance: '
+            "Retrieval relevance: "
             f'{round(item["retrieval_score"] * 100)}%'
         )
 
+
+# ============================================================
+# RESPONSE MATRIX
+# ============================================================
 
 st.markdown(
     '<div class="section-head">Response matrix</div>',
     unsafe_allow_html=True,
 )
 
+
 styles = [
-    ("😎 CONFIDENT", "confident"),
-    ("🔥 FLIRTY", "flirty"),
-    ("😂 FUNNY", "funny"),
-    ("💜 SWEET", "sweet"),
-    ("🧊 CHILL", "chill"),
+    (
+        "😎 CONFIDENT",
+        "confident",
+    ),
+    (
+        "🔥 FLIRTY",
+        "flirty",
+    ),
+    (
+        "😂 FUNNY",
+        "funny",
+    ),
+    (
+        "💜 SWEET",
+        "sweet",
+    ),
+    (
+        "🧊 CHILL",
+        "chill",
+    ),
 ]
+
 
 for label, key in styles:
 
@@ -350,7 +536,7 @@ for label, key in styles:
         if st.button(
             f"Save {key}",
             key=f"save_reply_{key}",
-            use_container_width=True,
+            width="stretch",
         ):
 
             save_item(
@@ -364,15 +550,23 @@ for label, key in styles:
             )
 
 
+# ============================================================
+# CONTINUE
+# ============================================================
+
 if st.button(
     "✍️ Continue in Reply Lab →",
-    use_container_width=True,
+    width="stretch",
 ):
 
     st.switch_page(
         "pages/reply_lab.py"
     )
 
+
+# ============================================================
+# WARNING
+# ============================================================
 
 st.warning(
     result["warning"]
