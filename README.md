@@ -1,65 +1,93 @@
 # 🥀 Wingman AI
 
-> AI-powered dating intelligence for better conversations, smarter decisions, and more confident next moves.
+> AI-powered dating intelligence for better conversations, smarter decisions, and better next moves.
 
-Wingman AI is a modular dating intelligence platform designed to analyze conversation screenshots, understand interaction patterns, retrieve relevant relationship guidance, and turn those signals into practical next-step recommendations.
+Wingman AI is a modular dating intelligence platform that analyzes conversation screenshots, extracts interaction signals, retrieves relevant relationship guidance, and turns those signals into practical recommendations.
 
-Instead of focusing on a single message in isolation, Wingman looks at the broader conversation and evaluates signals such as warmth, reciprocity, engagement, flirt energy, message energy, and conversation direction.
+Instead of judging a conversation from a single message, Wingman looks at the broader interaction and considers signals such as warmth, reciprocity, engagement, flirt energy, message energy, and conversation direction.
 
-The platform combines **OCR, NLP signal analysis, Conversation DNA, local RAG retrieval, decision support, response strategy generation, date planning, and SQLite-based history** into one application.
+The project combines **OCR, NLP, TF-IDF retrieval, cosine similarity, decision support, response strategies, date planning, and SQLite-based history** into one application.
 
 Built collaboratively by **Aasveer Singh & Akshita Sharda**.
 
 ---
 
-## 🧠 The Idea Behind Wingman
+## ✨ Highlights
 
-Dating conversations can be difficult to interpret because context matters.
-
-A single:
-
-> "okay"
-
-can mean something completely different depending on everything that happened before it.
-
-Wingman is built around a simple principle:
-
-> **Read patterns, not single messages.**
-
-The system attempts to understand the overall interaction by combining multiple conversational signals rather than making a decision from one isolated message.
-
-The resulting analysis is transformed into a structured **Decision Brief** that can help the user understand:
-
-- What the conversation currently feels like
-- How engaged the interaction appears to be
-- What conversational patterns are visible
-- What the user could consider doing next
-- Which response strategies may fit the situation
-- What supporting guidance exists in the local knowledge base
+- 📸 Conversation screenshot analysis
+- 🔎 OCR-powered text extraction
+- 🧠 Conversation signal analysis
+- 🧬 Conversation DNA insights
+- 📚 Local RAG knowledge retrieval
+- 🎯 Decision support for next steps
+- ✍️ Reply strategy generation
+- 🥂 Context-aware date ideas
+- ❤️ Reply Vault
+- 🕘 Conversation analysis history
+- ⚡ FastAPI backend
+- 🗄️ SQLite-based local storage
+- 🖥️ Streamlit interface
 
 ---
 
-# ✨ What Wingman Can Do
+## 📸 Product Demo
 
-Wingman is organized around several intelligence and decision-support modules.
+Wingman is built around multiple interfaces that turn conversation analysis into practical decision support.
+
+### 🏠 Overview
+
+The main Wingman interface provides access to the platform's core dating intelligence features.
+
+![Wingman AI Overview](assets/overview_page.png)
+
+---
 
 ### 📸 Screenshot Intelligence
 
-Upload a conversation screenshot and Wingman processes it through an analysis pipeline.
+Upload a conversation screenshot and analyze the interaction using OCR and conversation-signal processing.
+
+![Wingman AI Screenshot Intelligence](assets/screenshot_intelligence_page.png)
+
+---
+
+### 🎯 Decision Mode
+
+Decision Mode helps turn conversation context into a structured next-step recommendation.
+
+![Wingman AI Decision Mode](assets/decision_mode_page.png)
+
+---
+
+### 🥂 Date Ideas
+
+Generate structured date plans based on situation, vibe, budget, activity type, time, and objective.
+
+![Wingman AI Date Ideas](assets/date_ideas_page.png)
+
+---
+
+## 🧠 How Wingman Works
+
+Wingman is built around one simple idea:
+
+> **Read patterns, not single messages.**
+
+A conversation is analyzed through several stages:
 
 ```text
-Screenshot
-    ↓
-OCR
-    ↓
-Text Extraction
-    ↓
+Conversation Screenshot
+        ↓
+       OCR
+        ↓
+  Text Extraction
+        ↓
 NLP Signal Analysis
-    ↓
-Conversation DNA
-    ↓
-RAG Retrieval
-    ↓
-Decision Brief
-    ↓
-Recommended Next Move
+        ↓
+ Conversation DNA
+        ↓
+ Local Knowledge Retrieval
+        ↓
+  Decision Analysis
+        ↓
+ Recommended Next Move
+---
