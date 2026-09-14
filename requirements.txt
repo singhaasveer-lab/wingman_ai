@@ -6,4 +6,4 @@ uvicorn>=0.30
 pydantic>=2.13.5
 pillow>=12.3.0
 pytesseract>=0.3.13
-python-multipart>=0.0.12
+python-multipart>=0.0.32
